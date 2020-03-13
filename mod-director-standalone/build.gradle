@@ -1,0 +1,27 @@
+plugins {
+    id 'application'
+}
+
+group 'net.jan'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":mod-director-core")
+}
+
+application {
+    mainClassName "net.jan.moddirector.standalone.ModDirectorStandalone"
+}
+
+run {
+    def runDir = file("run")
+    if(!runDir.exists() && !runDir.mkdirs()) {
+        throw new GradleScriptException("Failed to create run directory ${runDir.getAbsolutePath()}")
+    }
+
+    workingDir runDir
+}

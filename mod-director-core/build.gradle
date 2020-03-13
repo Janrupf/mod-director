@@ -1,0 +1,18 @@
+plugins {
+    id 'java-library'
+}
+
+group 'net.jan'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.10.3"
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.10.3"
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.10.3"
+}
