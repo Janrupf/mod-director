@@ -79,7 +79,7 @@ public class ConfigurationController {
         String name = file.toString();
         if(name.endsWith(".curse.json")) {
             return CurseRemoteMod.class;
-        } else if(name.endsWith("url.json")) {
+        } else if(name.endsWith(".url.json")) {
             return UrlRemoteMod.class;
         } else {
             director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/ConfigurationController",
