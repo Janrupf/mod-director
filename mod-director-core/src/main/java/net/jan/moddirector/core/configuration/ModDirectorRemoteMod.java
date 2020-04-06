@@ -4,6 +4,7 @@ import net.jan.moddirector.core.exception.ModDirectorException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
 
 public abstract class ModDirectorRemoteMod {
@@ -12,7 +13,7 @@ public abstract class ModDirectorRemoteMod {
 
     public ModDirectorRemoteMod(RemoteModHash hash, Map<String, Object> options) {
         this.hash = hash;
-        this.options = options;
+        this.options = options == null ? Collections.emptyMap() : options;
     }
 
     public abstract String remoteType();
