@@ -17,10 +17,12 @@ public class InstallController {
         this.director = director;
     }
 
-    public void handle(ModDirectorRemoteMod mod) {
+    public void handle(ModDirectorRemoteMod mod, ProgressCallback callback) {
         director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController", "CORE",
                 "Now handling %s from backend %s", mod.offlineName(), mod.remoteType());
 
+        callback.indeterminate(true);
+        callback.message("Querying mod information");
         RemoteModInformation information;
 
         try {
@@ -35,12 +37,15 @@ public class InstallController {
             return;
         }
 
+        callback.title(information.getDisplayName());
+
         Path targetFile = director.getPlatform().modFile(information.getTargetFilename());
 
         if(mod.getHash() != null && Files.isRegularFile(targetFile)) {
             if(mod.getHash().matches(targetFile, director)) {
                 director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController",
                         "CORE", "Skipping download of %s, hashes match.", targetFile.toString());
+                callback.done();
                 return;
             } else {
                 director.getLogger().log(ModDirectorSeverityLevel.INFO, "ModDirector/InstallController",
@@ -50,6 +55,7 @@ public class InstallController {
         } else if(Files.isRegularFile(targetFile)) {
             director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController",
                     "CORE", "File %s exists and no hash given, skipping download.", targetFile.toString());
+            callback.done();
             return;
         }
 
@@ -60,16 +66,18 @@ public class InstallController {
                     "CORE", e, "Failed to create directory %s", targetFile.getParent().toString());
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
                     "Failed to create directory" + targetFile.getParent().toString(), e));
+            callback.done();
             return;
         }
 
         try {
-            mod.performInstall(targetFile);
+            mod.performInstall(targetFile, callback);
         } catch(ModDirectorException e) {
             director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
                     "CORE", e, "Failed to install mod %s", mod.offlineName());
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
                     "Failed to install mod " + mod.offlineName()));
+            callback.done();
             return;
         }
 
@@ -83,5 +91,7 @@ public class InstallController {
                     "CORE", "Installed mod file %s", targetFile.toString());
             director.installSuccess(new InstalledMod(targetFile, mod.getOptions()));
         }
+
+        callback.done();
     }
 }

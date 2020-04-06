@@ -1,6 +1,7 @@
 package net.jan.moddirector.core.configuration;
 
 import net.jan.moddirector.core.exception.ModDirectorException;
+import net.jan.moddirector.core.manage.ProgressCallback;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,7 +20,7 @@ public abstract class ModDirectorRemoteMod {
     public abstract String remoteType();
     public abstract String offlineName();
 
-    public abstract void performInstall(Path targetFile) throws ModDirectorException;
+    public abstract void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException;
     public abstract RemoteModInformation queryInformation() throws ModDirectorException;
 
     public RemoteModHash getHash() {

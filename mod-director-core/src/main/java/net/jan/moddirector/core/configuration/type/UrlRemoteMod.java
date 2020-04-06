@@ -6,7 +6,10 @@ import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
 import net.jan.moddirector.core.configuration.RemoteModHash;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
 import net.jan.moddirector.core.exception.ModDirectorException;
+import net.jan.moddirector.core.manage.ProgressCallback;
+import net.jan.moddirector.core.util.IOOperation;
 import net.jan.moddirector.core.util.WebClient;
+import net.jan.moddirector.core.util.WebGetResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,8 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UrlRemoteMod extends ModDirectorRemoteMod {
     private final String fileName;
@@ -49,8 +50,10 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public void performInstall(Path targetFile) throws ModDirectorException {
+    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
         byte[] data = null;
+
+        progressCallback.setSteps(follows.length + 1);
 
         URL urlToFollow = null;
         for(int i = -1; i < follows.length; i++) {
@@ -89,22 +92,21 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
                 }
             }
 
-            try {
-                InputStream websiteStream = WebClient.get(urlToFollow);
+            if(i + 1 == follows.length) {
+                progressCallback.message("Downloading final file");
+            } else {
+                progressCallback.message("Following redirect " + (i + 2) + " out of " + follows.length);
+            }
+
+            try(WebGetResponse response = WebClient.get(urlToFollow)) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-                byte[] buffer = new byte[8192];
-                int len;
-                while((len = websiteStream.read(buffer)) > -1) {
-                    outputStream.write(buffer, 0, len);
-                }
-
+                IOOperation.copy(response.getInputStream(), outputStream, progressCallback, response.getStreamSize());
                 data = outputStream.toByteArray();
-                outputStream.close();
-                websiteStream.close();
             } catch(IOException e) {
                 throw new ModDirectorException("Failed to follow URL's to download file", e);
             }
+
+            progressCallback.step();
         }
 
         try {
@@ -112,14 +114,18 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
         } catch(IOException e) {
             throw new ModDirectorException("Failed to write file to disk", e);
         }
+
+        progressCallback.done();
     }
 
     @Override
     public RemoteModInformation queryInformation() {
         if(fileName != null) {
-            return new RemoteModInformation(fileName);
+            return new RemoteModInformation(fileName, fileName);
         } else {
-            return new RemoteModInformation(Paths.get(url.getFile()).getFileName().toString());
+            String name = Paths.get(url.getFile()).getFileName().toString();
+
+            return new RemoteModInformation(name, name);
         }
     }
 }

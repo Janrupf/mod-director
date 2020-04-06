@@ -10,7 +10,10 @@ import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
 import net.jan.moddirector.core.configuration.RemoteModHash;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
 import net.jan.moddirector.core.exception.ModDirectorException;
+import net.jan.moddirector.core.manage.ProgressCallback;
+import net.jan.moddirector.core.util.IOOperation;
 import net.jan.moddirector.core.util.WebClient;
+import net.jan.moddirector.core.util.WebGetResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +53,11 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public void performInstall(Path targetFile) throws ModDirectorException {
-        try(InputStream stream = WebClient.get(information.downloadUrl)) {
-            Files.copy(stream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
+        try(WebGetResponse response = WebClient.get(information.downloadUrl)) {
+            progressCallback.setSteps(1);
+            IOOperation.copy(response.getInputStream(), Files.newOutputStream(targetFile), progressCallback,
+                    response.getStreamSize());
         } catch(IOException e) {
             throw new ModDirectorException("Failed to download file", e);
         }
@@ -75,11 +80,14 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             throw new ModDirectorException("Failed to open connection to curse", e);
         }
 
-        return new RemoteModInformation(information.fileName);
+        return new RemoteModInformation(information.name, information.fileName);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private static class CurseAddonFileInformation {
+        @JsonProperty
+        private String name;
+
         @JsonProperty
         private String fileName;
 

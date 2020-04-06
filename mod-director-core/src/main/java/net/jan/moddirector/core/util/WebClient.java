@@ -10,10 +10,10 @@ import java.net.URLConnection;
 public class WebClient {
     public static final String USER_AGENT = "ModDirector v=0.1.0";
 
-    public static InputStream get(URL url) throws IOException  {
+    public static WebGetResponse get(URL url) throws IOException  {
         URLConnection connection = url.openConnection();
         if(!(connection instanceof HttpURLConnection)) {
-            return connection.getInputStream();
+            return new WebGetResponse(connection.getInputStream(), connection.getContentLengthLong());
         }
 
         int redirectCount = 0;
@@ -56,6 +56,6 @@ public class WebClient {
             }
         }
 
-        return httpConnection.getInputStream();
+        return new WebGetResponse(httpConnection.getInputStream(), httpConnection.getContentLengthLong());
     }
 }

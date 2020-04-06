@@ -7,9 +7,9 @@ import net.jan.moddirector.core.configuration.ConfigurationController;
 import net.jan.moddirector.core.manage.InstallController;
 import net.jan.moddirector.core.manage.InstalledMod;
 import net.jan.moddirector.core.manage.ModDirectorError;
+import net.jan.moddirector.core.manage.NullProgressCallback;
+import net.jan.moddirector.core.ui.InstallProgressDialog;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class ModDirector {
 
         this.errors = new LinkedList<>();
         this.installedMods = new LinkedList<>();
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+        this.executorService = Executors.newFixedThreadPool(4);
 
         logger.log(ModDirectorSeverityLevel.INFO, "ModDirector", "CORE", "Mod director loaded!");
     }
@@ -71,9 +71,21 @@ public class ModDirector {
             return false;
         }
 
+        InstallProgressDialog progressDialog = null;
+        if(!platform.headless()) {
+            progressDialog = new InstallProgressDialog();
+            progressDialog.setLocationRelativeTo(null);
+            progressDialog.setVisible(true);
+        }
+
+        InstallProgressDialog finalProgressDialog = progressDialog;
         mods.forEach(mod -> executorService.submit(() -> {
             try {
-                installController.handle(mod);
+                installController.handle(mod,
+                        finalProgressDialog != null ?
+                                finalProgressDialog.createProgressCallback(
+                                        mod.offlineName(), "Preparing install") :
+                                new NullProgressCallback());
             } catch(Exception e) {
                 logger.logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector", "CORE", e,
                         "Unhandled exception in worker thread");
@@ -83,6 +95,10 @@ public class ModDirector {
         }));
         executorService.shutdown();
         executorService.awaitTermination(timeout, timeUnit);
+
+        if(progressDialog != null) {
+            progressDialog.dispose();
+        }
 
         return !hasFatalError();
     }
