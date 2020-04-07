@@ -9,6 +9,8 @@ public class ModDirectorStandalone {
         ModDirectorStandalonePlatform platform = new ModDirectorStandalonePlatform();
         ModDirector director = ModDirector.bootstrap(platform);
 
-        director.activate(Long.MAX_VALUE, TimeUnit.DAYS);
+        if(!director.activate(Long.MAX_VALUE, TimeUnit.DAYS)) {
+            director.errorExit();
+        }
     }
 }

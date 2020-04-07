@@ -136,8 +136,13 @@ public class ModDirector {
                 "============================================================");
         logger.log(ModDirectorSeverityLevel.ERROR, "ModDirector", "CORE",
                 "Summary of %d encountered errors:", errors.size());
-        errors.forEach(e ->
-                logger.logThrowable(e.getLevel(), "ModDirector", "CORE", e.getException(), e.getMessage()));
+        errors.forEach(e -> {
+            if(e.getException() != null) {
+                logger.logThrowable(e.getLevel(), "ModDirector", "CORE", e.getException(), e.getMessage());
+            } else {
+                logger.log(e.getLevel(), "ModDirector", "CORE", e.getMessage());
+            }
+        });
         logger.log(ModDirectorSeverityLevel.ERROR, "ModDirector", "CORE",
                 "============================================================");
         System.exit(1);

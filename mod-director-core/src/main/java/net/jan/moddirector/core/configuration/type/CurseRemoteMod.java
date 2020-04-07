@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import net.jan.moddirector.core.configuration.ConfigurationController;
-import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
-import net.jan.moddirector.core.configuration.RemoteModHash;
-import net.jan.moddirector.core.configuration.RemoteModInformation;
+import net.jan.moddirector.core.configuration.*;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
 import net.jan.moddirector.core.util.IOOperation;
@@ -34,10 +31,10 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
     public CurseRemoteMod(
             @JsonProperty(value = "addonId", required = true) int addonId,
             @JsonProperty(value = "fileId", required = true) int fileId,
-            @JsonProperty(value = "hash") RemoteModHash hash,
+            @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options
             ) {
-        super(hash, options);
+        super(metadata, options);
         this.addonId = addonId;
         this.fileId = fileId;
     }

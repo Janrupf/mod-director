@@ -5,6 +5,7 @@ import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
+import net.jan.moddirector.core.util.HashResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,20 +42,32 @@ public class InstallController {
 
         Path targetFile = director.getPlatform().modFile(information.getTargetFilename());
 
-        if(mod.getHash() != null && Files.isRegularFile(targetFile)) {
-            if(mod.getHash().matches(targetFile, director)) {
-                director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController",
-                        "CORE", "Skipping download of %s, hashes match.", targetFile.toString());
-                callback.done();
-                return;
-            } else {
-                director.getLogger().log(ModDirectorSeverityLevel.INFO, "ModDirector/InstallController",
-                        "CORE", "File %s exists but hash does not match, downloading again!",
-                        targetFile.toString());
+        if(mod.getMetadata() != null && Files.isRegularFile(targetFile)) {
+            HashResult hashResult = mod.getMetadata().checkHashes(targetFile, director);
+
+            switch(hashResult) {
+                case UNKNOWN:
+                    director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController",
+                            "CORE", "Skipping download of %s as hashes can't be determined but file exists",
+                            targetFile.toString());
+                    callback.done();
+                    return;
+
+                case MATCHED:
+                    director.getLogger().log(ModDirectorSeverityLevel.INFO, "ModDirector/InstallController",
+                            "CORE", "Skipping download of %s as the hashes match", targetFile.toString());
+                    callback.done();
+                    return;
+
+                case UNMATCHED:
+                    director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/InstallController",
+                            "CORE", "File %s exists, but hashes do not match, downloading again!",
+                            targetFile.toString());
             }
         } else if(Files.isRegularFile(targetFile)) {
             director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController",
-                    "CORE", "File %s exists and no hash given, skipping download.", targetFile.toString());
+                    "CORE", "File %s exists and no metadata given, skipping download.",
+                    targetFile.toString());
             callback.done();
             return;
         }
@@ -81,7 +94,7 @@ public class InstallController {
             return;
         }
 
-        if(mod.getHash() != null && !mod.getHash().matches(targetFile, director)) {
+        if(mod.getMetadata() != null && mod.getMetadata().checkHashes(targetFile, director) == HashResult.UNMATCHED) {
             director.getLogger().log(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
                     "CORE", "Mod did not match hash after download, aborting!");
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,

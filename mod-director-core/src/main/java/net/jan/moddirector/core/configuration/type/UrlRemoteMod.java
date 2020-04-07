@@ -3,8 +3,8 @@ package net.jan.moddirector.core.configuration.type;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
-import net.jan.moddirector.core.configuration.RemoteModHash;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
+import net.jan.moddirector.core.configuration.RemoteModMetadata;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
 import net.jan.moddirector.core.util.IOOperation;
@@ -13,7 +13,6 @@ import net.jan.moddirector.core.util.WebGetResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,10 +29,10 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "fileName") String fileName,
             @JsonProperty(value = "url", required = true) URL url,
             @JsonProperty(value = "follows") String[] follows,
-            @JsonProperty(value = "hash") RemoteModHash hash,
+            @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options
     ) {
-        super(hash, options);
+        super(metadata, options);
         this.fileName = fileName;
         this.url = url;
         this.follows = follows == null ? new String[0] : follows;

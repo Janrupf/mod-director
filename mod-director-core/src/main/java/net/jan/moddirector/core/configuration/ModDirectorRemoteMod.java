@@ -9,11 +9,11 @@ import java.util.Collections;
 import java.util.Map;
 
 public abstract class ModDirectorRemoteMod {
-    private final RemoteModHash hash;
+    private final RemoteModMetadata metadata;
     private final Map<String, Object> options;
 
-    public ModDirectorRemoteMod(RemoteModHash hash, Map<String, Object> options) {
-        this.hash = hash;
+    public ModDirectorRemoteMod(RemoteModMetadata metadata, Map<String, Object> options) {
+        this.metadata = metadata;
         this.options = options == null ? Collections.emptyMap() : options;
     }
 
@@ -23,8 +23,8 @@ public abstract class ModDirectorRemoteMod {
     public abstract void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException;
     public abstract RemoteModInformation queryInformation() throws ModDirectorException;
 
-    public RemoteModHash getHash() {
-        return hash;
+    public RemoteModMetadata getMetadata() {
+        return metadata;
     }
 
     public Map<String, Object> getOptions() {
