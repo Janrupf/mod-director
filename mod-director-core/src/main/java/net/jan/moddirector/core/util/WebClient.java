@@ -8,7 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class WebClient {
-    public static final String USER_AGENT = "ModDirector v=0.1.0";
+    public static final String USER_AGENT = "ModDirector v=0.1.0 (https://github.com/Janrupf/mod-director)";
 
     public static WebGetResponse get(URL url) throws IOException  {
         URLConnection connection = url.openConnection();

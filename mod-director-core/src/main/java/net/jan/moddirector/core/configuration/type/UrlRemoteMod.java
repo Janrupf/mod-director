@@ -2,11 +2,13 @@ package net.jan.moddirector.core.configuration.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
 import net.jan.moddirector.core.configuration.RemoteModMetadata;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
+import net.jan.moddirector.core.manage.check.StopModReposts;
 import net.jan.moddirector.core.util.IOOperation;
 import net.jan.moddirector.core.util.WebClient;
 import net.jan.moddirector.core.util.WebGetResponse;
@@ -96,6 +98,8 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             } else {
                 progressCallback.message("Following redirect " + (i + 2) + " out of " + follows.length);
             }
+
+            StopModReposts.check(ModDirector.getInstance(), urlToFollow);
 
             try(WebGetResponse response = WebClient.get(urlToFollow)) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
