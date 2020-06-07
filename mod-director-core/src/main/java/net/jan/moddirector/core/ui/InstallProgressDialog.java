@@ -1,6 +1,7 @@
 package net.jan.moddirector.core.ui;
 
-import net.jan.moddirector.core.configuration.ModpackConfiguration;
+import net.jan.moddirector.core.configuration.modpack.ModpackConfiguration;
+import net.jan.moddirector.core.configuration.modpack.ModpackIconConfiguration;
 import net.jan.moddirector.core.manage.ProgressCallback;
 
 import javax.swing.*;
@@ -24,8 +25,9 @@ public class InstallProgressDialog extends JDialog {
         titleLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, titleLabel.getMinimumSize().height));
         contentPanel.add(titleLabel);
 
-        if (configuration.icon() != null) {
-            JLabel iconLabel = ImageLoader.createLabelForImage(configuration.icon(), 64, 64);
+        ModpackIconConfiguration icon = configuration.icon();
+        if (icon != null) {
+            JLabel iconLabel = ImageLoader.createLabelForImage(icon.path(), icon.width(), icon.height());
             iconLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, iconLabel.getMaximumSize().height));
             contentPanel.add(iconLabel);
         }

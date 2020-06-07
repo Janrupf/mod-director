@@ -1,7 +1,7 @@
 package net.jan.moddirector.core;
 
 import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
-import net.jan.moddirector.core.configuration.ModpackConfiguration;
+import net.jan.moddirector.core.configuration.modpack.ModpackConfiguration;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
 import net.jan.moddirector.core.logging.ModDirectorLogger;
 import net.jan.moddirector.core.configuration.ConfigurationController;

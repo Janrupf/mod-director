@@ -41,7 +41,7 @@ public class ImageLoader {
         }
 
         try {
-            Image image = ImageIO.read(imageFile).getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            Image image = getScaled(ImageIO.read(imageFile), width, height);
             return new JLabel(new ImageIcon(image));
         } catch (IOException e) {
             return errorLabel("Failed to read file %s due to IOException: %s", path, e.getMessage());
@@ -50,13 +50,29 @@ public class ImageLoader {
 
     private static JLabel readFromWeb(String path, int width, int height) {
         try(WebGetResponse response = WebClient.get(new URL(path))) {
-            Image image = ImageIO.read(response.getInputStream()).getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            Image image = getScaled(ImageIO.read(response.getInputStream()), width, height);
             return new JLabel(new ImageIcon(image));
         } catch (MalformedURLException e) {
             return errorLabel("%s is not a valid url: %s", path, e.getMessage());
         } catch (IOException e) {
             return errorLabel("Failed to read data from %s due to IOException: %s", path, e.getMessage());
         }
+    }
+
+    private static Image getScaled(BufferedImage image, int width, int height) {
+        if(width <= 0 && height <= 0) {
+            return image;
+        }
+
+        if(width <= 0) {
+            width = image.getWidth();
+        }
+
+        if(height <= 0) {
+            height = image.getHeight();
+        }
+
+        return image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
     }
 
     private static JLabel errorLabel(String fmt, Object... args) {

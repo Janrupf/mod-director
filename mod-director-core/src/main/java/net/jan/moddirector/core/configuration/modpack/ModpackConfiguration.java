@@ -1,16 +1,16 @@
-package net.jan.moddirector.core.configuration;
+package net.jan.moddirector.core.configuration.modpack;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ModpackConfiguration {
     private final String packName;
-    private final String icon;
+    private final ModpackIconConfiguration icon;
 
     @JsonCreator
     public ModpackConfiguration(
             @JsonProperty(value = "packName", required = true) String packName,
-            @JsonProperty("icon") String icon
+            @JsonProperty("icon") ModpackIconConfiguration icon
     ) {
         this.packName = packName;
         this.icon = icon;
@@ -20,7 +20,7 @@ public class ModpackConfiguration {
         return packName;
     }
 
-    public String icon() {
+    public ModpackIconConfiguration icon() {
         return icon;
     }
 

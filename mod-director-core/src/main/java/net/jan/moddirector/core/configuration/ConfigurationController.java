@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.jan.moddirector.core.ModDirector;
+import net.jan.moddirector.core.configuration.modpack.ModpackConfiguration;
 import net.jan.moddirector.core.configuration.type.CurseRemoteMod;
 import net.jan.moddirector.core.configuration.type.UrlRemoteMod;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
