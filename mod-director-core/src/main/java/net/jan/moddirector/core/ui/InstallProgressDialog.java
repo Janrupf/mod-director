@@ -1,22 +1,40 @@
 package net.jan.moddirector.core.ui;
 
+import net.jan.moddirector.core.configuration.ModpackConfiguration;
 import net.jan.moddirector.core.manage.ProgressCallback;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 public class InstallProgressDialog extends JDialog {
+    private static final int HEIGHT = 400;
+    private static final int WIDTH = (int) (HEIGHT * /* golden ratio */ 1.618);
+
     private final JPanel contentPanel;
 
-    public InstallProgressDialog() {
+    public InstallProgressDialog(ModpackConfiguration configuration) {
         contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
+        setTitle(configuration.packName());
+
+        JLabel titleLabel = new JLabel("Installing " + configuration.packName(), SwingConstants.CENTER);
+        titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 20));
+        titleLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, titleLabel.getMinimumSize().height));
+        contentPanel.add(titleLabel);
+
+        if (configuration.icon() != null) {
+            JLabel iconLabel = ImageLoader.createLabelForImage(configuration.icon(), 64, 64);
+            iconLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, iconLabel.getMaximumSize().height));
+            contentPanel.add(iconLabel);
+        }
+
         JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setSize(400, 200);
+        scrollPane.setSize(WIDTH, HEIGHT);
 
         setContentPane(contentPanel);
-        setSize(400, 200);
+        setSize(WIDTH, HEIGHT);
     }
 
     public ProgressCallback createProgressCallback(String title, String initialMessage) {
@@ -70,14 +88,16 @@ public class InstallProgressDialog extends JDialog {
 
         @Override
         public void done() {
-            if(done) {
+            if (done) {
                 return;
             }
 
-            synchronized(contentPanel) {
-                SwingUtilities.invokeLater(() -> contentPanel.remove(progressBar));
-                done = true;
-            }
+            SwingUtilities.invokeLater(() -> {
+                contentPanel.remove(progressBar);
+                contentPanel.revalidate();
+            });
+            done = true;
+
         }
 
         @Override

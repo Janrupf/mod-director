@@ -32,23 +32,47 @@ public class ConfigurationController {
     private final Path configurationDirectory;
     private final List<ModDirectorRemoteMod> configurations;
 
+    private ModpackConfiguration modpackConfiguration;
+
     public ConfigurationController(ModDirector director, Path configurationDirectory) {
         this.director = director;
         this.configurationDirectory = configurationDirectory;
         this.configurations = new ArrayList<>();
     }
 
-    public List<ModDirectorRemoteMod> load() {
+    public void load() {
+        Path modpackConfigPath = configurationDirectory.resolve("modpack.json");
+        if(Files.exists(modpackConfigPath)) {
+            if(!loadModpackConfiguration(modpackConfigPath)) {
+                return;
+            }
+        }
+
         try(Stream<Path> paths = Files.walk(configurationDirectory)) {
-            paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith(".json")).forEach(this::addConfig);
+            paths
+                    .filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".json"))
+                    .filter(p -> !p.getFileName().toString().equals("modpack.json"))
+                    .forEach(this::addConfig);
         } catch(IOException e) {
             director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/ConfigurationController",
                     "CORE", e, "Failed to iterate configuration directory!");
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
                     "Failed to iterate configuration directory", e));
         }
+    }
 
-        return configurations;
+    private boolean loadModpackConfiguration(Path configurationPath) {
+        try(InputStream stream = Files.newInputStream(configurationPath)) {
+            modpackConfiguration = OBJECT_MAPPER.readValue(stream, ModpackConfiguration.class);
+            return true;
+        } catch (IOException e) {
+            director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/ConfigurationController",
+                    "CORE", e, "Failed to read modpack configuration!");
+            director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
+                    "Failed to read modpack configuration!"));
+            return false;
+        }
     }
 
     private void addConfig(Path configurationPath) {
@@ -83,8 +107,16 @@ public class ConfigurationController {
             return UrlRemoteMod.class;
         } else {
             director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/ConfigurationController",
-                    "CORE", "Ignoring unknown json file %s" + name);
+                    "CORE", "Ignoring unknown json file %s", name);
             return null;
         }
+    }
+
+    public ModpackConfiguration getModpackConfiguration() {
+        return modpackConfiguration;
+    }
+
+    public List<ModDirectorRemoteMod> getConfigurations() {
+        return configurations;
     }
 }

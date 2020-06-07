@@ -1,6 +1,7 @@
 package net.jan.moddirector.core;
 
 import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
+import net.jan.moddirector.core.configuration.ModpackConfiguration;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
 import net.jan.moddirector.core.logging.ModDirectorLogger;
 import net.jan.moddirector.core.configuration.ConfigurationController;
@@ -66,14 +67,23 @@ public class ModDirector {
     }
 
     public boolean activate(long timeout, TimeUnit timeUnit) throws InterruptedException {
-        List<ModDirectorRemoteMod> mods = configurationController.load();
+        configurationController.load();
+        List<ModDirectorRemoteMod> mods = configurationController.getConfigurations();
+        ModpackConfiguration modpackConfiguration = configurationController.getModpackConfiguration();
+
+        if(modpackConfiguration == null) {
+            logger.log(ModDirectorSeverityLevel.WARN, "ModDirector", "CORE",
+                    "This modpack does not contain a modpack.json, if you are the author, consider adding one!");
+            modpackConfiguration = ModpackConfiguration.createDefault();
+        }
+
         if(hasFatalError()) {
             return false;
         }
 
         InstallProgressDialog progressDialog = null;
         if(!platform.headless()) {
-            progressDialog = new InstallProgressDialog();
+            progressDialog = new InstallProgressDialog(modpackConfiguration);
             progressDialog.setLocationRelativeTo(null);
             progressDialog.setVisible(true);
         }
