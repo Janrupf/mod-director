@@ -24,4 +24,5 @@ public class ForgeConstants {
     public static final String TWEAK_CLASS_ATTRIBUTE = "TweakClass";
     public static final String TWEAK_ORDER_ATTRIBUTE = "TweakOrder";
     public static final String CORE_PLUGIN_ATTRIBUTE = "FMLCorePlugin";
+    public static final String FML_AT_ATTRIBUTE = "FMLAT";
 }

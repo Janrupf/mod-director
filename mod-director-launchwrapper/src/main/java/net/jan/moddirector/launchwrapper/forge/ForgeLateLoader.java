@@ -41,6 +41,7 @@ public class ForgeLateLoader {
     private MethodHandle addUrlMethodHandle;
     private MethodHandle sortTweakListMethodHandle;
     private MethodHandle addJarMethodHandle;
+    private boolean addJarRequiresAtList;
 
     public ForgeLateLoader(ModDirectorTweaker directorTweaker, ModDirector director, LaunchClassLoader classLoader) {
         this.directorTweaker = directorTweaker;
@@ -262,10 +263,31 @@ public class ForgeLateLoader {
                         ForgeConstants.ADD_JAR_METHOD
                 }, modAccessTransformerClass, JarFile.class);
                 addJarMethodHandle = LOOKUP.unreflect(addJarMethod);
+                addJarRequiresAtList = false;
             } catch(NoSuchMethodException e) {
-                director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLaterLoader",
-                        "Launchwrapper", e, "Failed to find method for injecting access transformers, " +
-                                "loading might fail if they are required!");
+                Exception secondException = null;
+
+                try {
+                    Method addJarMethod = getMethod(new String[] {
+                            ForgeConstants.ADD_JAR_METHOD
+                    }, modAccessTransformerClass, JarFile.class, String.class);
+                    addJarMethodHandle = LOOKUP.unreflect(addJarMethod);
+                    addJarRequiresAtList = true;
+                } catch (IllegalAccessException | NoSuchMethodException second) {
+                    secondException = second;
+                }
+
+                if(addJarMethodHandle == null) {
+                    director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLaterLoader",
+                            "Launchwrapper", "Failed to find method for injecting access transformers, " +
+                                    "loading might fail if they are required!");
+                    director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLaterLoader",
+                            "Launchwrapper", e, "\tFailure 1:");
+                    if (secondException != null) {
+                        director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLaterLoader",
+                                "Launchwrapper", secondException, "\tFailure 2:");
+                    }
+                }
             } catch(IllegalAccessException e) {
                 director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLaterLoader",
                         "Launchwrapper", e, "Failed to access method for injecting access transformers, " +
@@ -322,17 +344,7 @@ public class ForgeLateLoader {
             if(manifest != null) {
                 Attributes attributes = manifest.getMainAttributes();
 
-                if(addJarMethodHandle != null) {
-                    try {
-                        director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/ForgeLateLoader",
-                                "Launchwrapper", "Added %s to possible access transformers", jar.getName());
-                        addJarMethodHandle.invoke(jar);
-                    } catch(Throwable t) {
-                        director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN,
-                                "ModDirector/ForgeLateLoader", "Launchwrapper", t,
-                                "Failed to add jar to access transformers");
-                    }
-                }
+                injectAccessTransformers(jar, manifest);
 
                 if(attributes.getValue(ForgeConstants.CORE_PLUGIN_CONTAINS_MOD_ATTRIBUTE) != null) {
                     addReparseableJar(injectedFile);
@@ -490,6 +502,27 @@ public class ForgeLateLoader {
                     "Launchwrapper", e, "Failed to inject core plugin!");
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
                     "Failed to inject core plugin!", e));
+        }
+    }
+
+    private void injectAccessTransformers(JarFile jar, Manifest manifest) {
+        if(addJarMethodHandle != null) {
+            try {
+                director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/ForgeLateLoader",
+                        "Launchwrapper", "Added %s to possible access transformers", jar.getName());
+                if(addJarRequiresAtList) {
+                    String ats = manifest.getMainAttributes().getValue(ForgeConstants.FML_AT_ATTRIBUTE);
+                    if(ats != null && !ats.isEmpty()) {
+                        addJarMethodHandle.invoke(jar, ats);
+                    }
+                } else {
+                    addJarMethodHandle.invoke(jar);
+                }
+            } catch(Throwable t) {
+                director.getLogger().logThrowable(ModDirectorSeverityLevel.WARN,
+                        "ModDirector/ForgeLateLoader", "Launchwrapper", t,
+                        "Failed to add jar to access transformers");
+            }
         }
     }
 }
