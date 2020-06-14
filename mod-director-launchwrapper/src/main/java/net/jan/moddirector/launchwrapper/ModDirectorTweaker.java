@@ -29,6 +29,12 @@ public class ModDirectorTweaker implements ITweaker {
     public void acceptOptions(List<String> args, File gameDir, File assetsDir, String profile) {
         this.args = args;
         this.gameDir = gameDir;
+        if(gameDir == null) {
+            this.gameDir = new File(".").getAbsoluteFile();
+            director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/Tweaker", "Launchwrapper",
+                    "Fixing null game directory to %s", this.gameDir.getPath());
+        }
+
         this.assetsDir = assetsDir;
         this.profile = profile;
     }
