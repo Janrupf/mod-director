@@ -22,6 +22,12 @@ public class InstallController {
         director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController", "CORE",
                 "Now handling %s from backend %s", mod.offlineName(), mod.remoteType());
 
+        if(mod.getMetadata() != null && !mod.getMetadata().shouldTryInstall(director)) {
+            director.getLogger().log(ModDirectorSeverityLevel.DEBUG, "ModDirector/InstallController", "CORE",
+                    "Skipping install, shouldTryInstall() returned false");
+            return;
+        }
+
         callback.indeterminate(true);
         callback.message("Querying mod information");
         RemoteModInformation information;

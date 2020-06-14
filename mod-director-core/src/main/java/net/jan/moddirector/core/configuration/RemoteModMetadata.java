@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
+import net.jan.moddirector.core.platform.PlatformSide;
 import net.jan.moddirector.core.util.HashResult;
 
 import java.io.IOException;
@@ -17,10 +18,15 @@ import java.util.Map;
 
 public class RemoteModMetadata {
     private final Map<String, String> hashes;
+    private final PlatformSide side;
 
     @JsonCreator
-    public RemoteModMetadata(@JsonProperty(value = "hash") LinkedHashMap<String, String> hashes) {
+    public RemoteModMetadata(
+            @JsonProperty(value = "hash") LinkedHashMap<String, String> hashes,
+            @JsonProperty(value = "side") PlatformSide side
+    ) {
         this.hashes = hashes;
+        this.side = side;
     }
 
     public HashResult checkHashes(Path file, ModDirector director) {
@@ -66,5 +72,10 @@ public class RemoteModMetadata {
         director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/RemoteModMetadata",
                 "CORE", "All given hash algorithms are not supported by the JVM");
         return HashResult.UNKNOWN;
+    }
+
+    public boolean shouldTryInstall(ModDirector modDirector) {
+        PlatformSide currentSide = modDirector.getPlatform().side();
+        return currentSide == null || side == null || currentSide == side;
     }
 }

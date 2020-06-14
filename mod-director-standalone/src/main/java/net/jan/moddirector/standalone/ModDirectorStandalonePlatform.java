@@ -1,7 +1,8 @@
 package net.jan.moddirector.standalone;
 
-import net.jan.moddirector.core.ModDirectorPlatform;
+import net.jan.moddirector.core.platform.ModDirectorPlatform;
 import net.jan.moddirector.core.logging.ModDirectorLogger;
+import net.jan.moddirector.core.platform.PlatformSide;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +32,11 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
     @Override
     public ModDirectorLogger logger() {
         return logger;
+    }
+
+    @Override
+    public PlatformSide side() {
+        return null;
     }
 
     @Override

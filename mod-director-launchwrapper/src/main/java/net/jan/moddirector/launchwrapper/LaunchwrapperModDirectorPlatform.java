@@ -1,7 +1,9 @@
 package net.jan.moddirector.launchwrapper;
 
-import net.jan.moddirector.core.ModDirectorPlatform;
+import net.jan.moddirector.core.ModDirector;
+import net.jan.moddirector.core.platform.ModDirectorPlatform;
 import net.jan.moddirector.core.logging.ModDirectorLogger;
+import net.jan.moddirector.core.platform.PlatformSide;
 
 import java.awt.*;
 import java.io.File;
@@ -11,9 +13,11 @@ import java.nio.file.Path;
 
 public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
     private final ModDirectorTweaker tweaker;
+    private final SideDetermination sideDetermination;
 
     public LaunchwrapperModDirectorPlatform(ModDirectorTweaker tweaker) {
         this.tweaker = tweaker;
+        this.sideDetermination = new SideDetermination();
     }
 
     @Override
@@ -25,7 +29,7 @@ public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
     public Path configurationDirectory() {
         File configDir = new File(tweaker.getGameDir(), "config/mod-director");
         if(!configDir.exists() && !configDir.mkdirs()) {
-            throw new UncheckedIOException(new IOException("Failed to create config diretory " +
+            throw new UncheckedIOException(new IOException("Failed to create config directory " +
                     configDir.getAbsolutePath()));
         }
 
@@ -43,8 +47,13 @@ public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
     }
 
     @Override
-    public void bootstrap() {
+    public PlatformSide side() {
+        return null;
+    }
 
+    @Override
+    public void bootstrap() {
+        sideDetermination.determine(ModDirector.getInstance());
     }
 
     @Override

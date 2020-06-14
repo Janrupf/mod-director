@@ -9,6 +9,7 @@ import net.jan.moddirector.core.manage.InstallController;
 import net.jan.moddirector.core.manage.InstalledMod;
 import net.jan.moddirector.core.manage.ModDirectorError;
 import net.jan.moddirector.core.manage.NullProgressCallback;
+import net.jan.moddirector.core.platform.ModDirectorPlatform;
 import net.jan.moddirector.core.ui.InstallProgressDialog;
 
 import java.util.Collections;
