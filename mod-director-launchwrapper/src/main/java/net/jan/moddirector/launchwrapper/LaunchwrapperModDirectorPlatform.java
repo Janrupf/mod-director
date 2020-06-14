@@ -48,7 +48,7 @@ public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
 
     @Override
     public PlatformSide side() {
-        return null;
+        return sideDetermination.get();
     }
 
     @Override
