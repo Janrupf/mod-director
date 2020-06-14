@@ -346,12 +346,6 @@ public class ForgeLateLoader {
 
                 injectAccessTransformers(jar, manifest);
 
-                if(attributes.getValue(ForgeConstants.CORE_PLUGIN_CONTAINS_MOD_ATTRIBUTE) != null) {
-                    addReparseableJar(injectedFile);
-                } else {
-                    addLoadedCoreMod(injectedFile);
-                }
-
                 String tweakClass;
                 if((tweakClass = attributes.getValue(ForgeConstants.TWEAK_CLASS_ATTRIBUTE)) != null) {
                     int tweakOrder = 0;
@@ -369,11 +363,18 @@ public class ForgeLateLoader {
                     injectTweaker(
                             injectedFile, jar, tweakClass, tweakOrder,
                             mod.getOptionBoolean("launchwrapperTweakerForceNext", false));
+                    return;
                 }
 
                 String corePlugin;
                 if((corePlugin = attributes.getValue(ForgeConstants.CORE_PLUGIN_ATTRIBUTE)) != null) {
                     injectCorePlugin(injectedFile, corePlugin);
+
+                    if(attributes.getValue(ForgeConstants.CORE_PLUGIN_CONTAINS_MOD_ATTRIBUTE) != null) {
+                        addReparseableJar(injectedFile);
+                    } else {
+                        addLoadedCoreMod(injectedFile);
+                    }
                 }
             } else {
                 director.getLogger().log(ModDirectorSeverityLevel.WARN, "ModDirector/ForgeLateLoader",
