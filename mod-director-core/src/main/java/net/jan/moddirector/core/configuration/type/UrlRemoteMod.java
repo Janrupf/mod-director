@@ -59,10 +59,6 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     @Override
     public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
         byte[] data = null;
-        
-        if (this.folderName != null) {
-        	targetFile = director.getPlatform().customFile(information.getTargetFilename(), this.folderName);
-        }
 
         progressCallback.setSteps(follows.length + 1);
 

@@ -59,9 +59,6 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
 
 	@Override
     public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
-		if (this.folderName != null) {
-        	targetFile = director.getPlatform().customFile(information.getTargetFilename(), this.folderName);
-        }
 		
 		try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
             progressCallback.setSteps(1);
