@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
+import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.configuration.*;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
@@ -24,6 +26,8 @@ import java.util.Map;
 public class CurseRemoteMod extends ModDirectorRemoteMod {
     private final int addonId;
     private final int fileId;
+    private final String folderName;
+    private String inject;
 
     private CurseAddonFileInformation information;
 
@@ -32,11 +36,15 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "addonId", required = true) int addonId,
             @JsonProperty(value = "fileId", required = true) int fileId,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
-            @JsonProperty(value = "options") Map<String, Object> options
+            @JsonProperty(value = "options") Map<String, Object> options,
+            @JsonProperty(value = "folder") String folderName,
+            @JsonProperty(value = "inject") String inject
             ) {
         super(metadata, options);
         this.addonId = addonId;
         this.fileId = fileId;
+        this.folderName = folderName;
+        this.inject = inject;
     }
 
     @Override
@@ -49,15 +57,21 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
         return addonId + ":" + fileId;
     }
 
-    @Override
-    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
-        try(WebGetResponse response = WebClient.get(information.downloadUrl)) {
+	@Override
+    public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
+		if (this.folderName != null) {
+        	targetFile = director.getPlatform().customFile(information.getTargetFilename(), this.folderName);
+        }
+		
+		try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
             progressCallback.setSteps(1);
             IOOperation.copy(response.getInputStream(), Files.newOutputStream(targetFile), progressCallback,
                     response.getStreamSize());
         } catch(IOException e) {
             throw new ModDirectorException("Failed to download file", e);
         }
+		
+		return this.folderName;
     }
 
     @Override
@@ -94,4 +108,14 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
         @JsonProperty
         private String[] gameVersion;
     }
+
+	@Override
+	public String folderName() {
+		return this.folderName;
+	}
+	
+	@Override
+	public int forceInject() {
+		return inject == null ? 0 : inject.equalsIgnoreCase("true") ? 1 : 2;
+	}
 }

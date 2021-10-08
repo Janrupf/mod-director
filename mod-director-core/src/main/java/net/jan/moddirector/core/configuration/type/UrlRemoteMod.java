@@ -25,6 +25,8 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     private final String fileName;
     private final URL url;
     private final String[] follows;
+    private final String folderName;
+    private String inject;
 
     @JsonCreator
     public UrlRemoteMod(
@@ -32,11 +34,15 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "url", required = true) URL url,
             @JsonProperty(value = "follows") String[] follows,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
-            @JsonProperty(value = "options") Map<String, Object> options
+            @JsonProperty(value = "options") Map<String, Object> options,
+            @JsonProperty(value = "folder") String folderName,
+            @JsonProperty(value = "inject") String inject
     ) {
         super(metadata, options);
         this.fileName = fileName;
+        this.folderName = folderName;
         this.url = url;
+        this.inject = inject;
         this.follows = follows == null ? new String[0] : follows;
     }
 
@@ -51,8 +57,12 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
+    public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
         byte[] data = null;
+        
+        if (this.folderName != null) {
+        	targetFile = director.getPlatform().customFile(information.getTargetFilename(), this.folderName);
+        }
 
         progressCallback.setSteps(follows.length + 1);
 
@@ -119,6 +129,7 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
         }
 
         progressCallback.done();
+        return this.folderName;
     }
 
     @Override
@@ -131,4 +142,14 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             return new RemoteModInformation(name, name);
         }
     }
+
+	@Override
+	public String folderName() {
+		return this.folderName;
+	}
+	
+	@Override
+	public int forceInject() {
+		return inject == null ? 0 : inject.equalsIgnoreCase("true") ? 1 : 2;
+	}
 }

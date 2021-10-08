@@ -46,7 +46,9 @@ public class InstallController {
 
         callback.title(information.getDisplayName());
 
-        Path targetFile = director.getPlatform().modFile(information.getTargetFilename());
+        Path targetFile = mod.folderName() == null ? director.getPlatform().modFile(information.getTargetFilename()) 
+        		: mod.folderName().equalsIgnoreCase(".") ? director.getPlatform().rootFile(information.getTargetFilename()) 
+        				: director.getPlatform().customFile(information.getTargetFilename(), mod.folderName());
 
         if(mod.getMetadata() != null && Files.isRegularFile(targetFile)) {
             HashResult hashResult = mod.getMetadata().checkHashes(targetFile, director);
@@ -90,7 +92,7 @@ public class InstallController {
         }
 
         try {
-            mod.performInstall(targetFile, callback);
+        	mod.performInstall(targetFile, callback, director, information);
         } catch(ModDirectorException e) {
             director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
                     "CORE", e, "Failed to install mod %s", mod.offlineName());
@@ -108,7 +110,7 @@ public class InstallController {
         } else {
             director.getLogger().log(ModDirectorSeverityLevel.INFO, "ModDirector/InstallController",
                     "CORE", "Installed mod file %s", targetFile.toString());
-            director.installSuccess(new InstalledMod(targetFile, mod.getOptions()));
+            director.installSuccess(new InstalledMod(targetFile, mod.getOptions(), mod.forceInject()));
         }
 
         callback.done();

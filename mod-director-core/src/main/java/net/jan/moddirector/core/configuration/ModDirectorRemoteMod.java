@@ -1,5 +1,6 @@
 package net.jan.moddirector.core.configuration;
 
+import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
 
@@ -19,8 +20,9 @@ public abstract class ModDirectorRemoteMod {
 
     public abstract String remoteType();
     public abstract String offlineName();
+    public abstract String folderName();
+	public abstract int forceInject();
 
-    public abstract void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException;
     public abstract RemoteModInformation queryInformation() throws ModDirectorException;
 
     public RemoteModMetadata getMetadata() {
@@ -30,4 +32,9 @@ public abstract class ModDirectorRemoteMod {
     public Map<String, Object> getOptions() {
         return options;
     }
+
+	public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director,
+			RemoteModInformation information) throws ModDirectorException {
+		return null;
+	}
 }

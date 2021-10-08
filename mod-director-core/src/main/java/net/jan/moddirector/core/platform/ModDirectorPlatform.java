@@ -8,6 +8,8 @@ public interface ModDirectorPlatform {
     String name();
     Path configurationDirectory();
     Path modFile(String modFileName);
+	Path rootFile(String modFileName);
+	Path customFile(String modFileName, String modFolderName);
     ModDirectorLogger logger();
     PlatformSide side();
 
