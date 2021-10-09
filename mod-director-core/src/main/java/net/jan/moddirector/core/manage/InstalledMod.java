@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class InstalledMod {
     private final Path file;
-    private final int inject;
+    private final boolean inject;
     private final Map<String, Object> options;
 
-    public InstalledMod(Path file, Map<String, Object> options, int inject) {
+    public InstalledMod(Path file, Map<String, Object> options, boolean inject) {
         this.file = file;
         this.inject = inject;
         this.options = options;
@@ -18,7 +18,7 @@ public class InstalledMod {
         return file;
     }
 
-    public int getInject() {
+    public boolean getInject() {
         return inject;
     }
     

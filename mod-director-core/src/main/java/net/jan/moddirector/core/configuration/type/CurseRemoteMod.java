@@ -26,8 +26,6 @@ import java.util.Map;
 public class CurseRemoteMod extends ModDirectorRemoteMod {
     private final int addonId;
     private final int fileId;
-    private final String folderName;
-    private String inject;
 
     private CurseAddonFileInformation information;
 
@@ -38,13 +36,11 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options,
             @JsonProperty(value = "folder") String folderName,
-            @JsonProperty(value = "inject") String inject
+            @JsonProperty(value = "inject") Boolean inject
             ) {
-        super(metadata, options);
+        super(metadata, options, folderName, inject);
         this.addonId = addonId;
         this.fileId = fileId;
-        this.folderName = folderName;
-        this.inject = inject;
     }
 
     @Override
@@ -58,17 +54,15 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
     }
 
 	@Override
-    public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
-		
-		try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
+    public void performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
+
+        try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
             progressCallback.setSteps(1);
             IOOperation.copy(response.getInputStream(), Files.newOutputStream(targetFile), progressCallback,
                     response.getStreamSize());
         } catch(IOException e) {
             throw new ModDirectorException("Failed to download file", e);
         }
-		
-		return this.folderName;
     }
 
     @Override
@@ -105,14 +99,4 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
         @JsonProperty
         private String[] gameVersion;
     }
-
-	@Override
-	public String folderName() {
-		return this.folderName;
-	}
-	
-	@Override
-	public int forceInject() {
-		return inject == null ? 0 : inject.equalsIgnoreCase("true") ? 1 : 2;
-	}
 }

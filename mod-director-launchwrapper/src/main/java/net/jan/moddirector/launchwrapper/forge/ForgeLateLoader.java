@@ -336,15 +336,8 @@ public class ForgeLateLoader {
     private void handle(InstalledMod mod) {
         Path injectedFile = mod.getFile();
         
-        switch(mod.getInject()) {
-	        case 1:
-	        	break;
-	        case 2:
-	        	return;
-	        case 0:
-	        default:
-	            if (!mod.getFile().toString().contains("mods")) return;
-	            break;
+        if(!mod.getInject()) {
+            return;
         }
 
         reflectiveIgnoredMods.remove(injectedFile.toFile().getName());

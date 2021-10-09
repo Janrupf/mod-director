@@ -25,8 +25,6 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     private final String fileName;
     private final URL url;
     private final String[] follows;
-    private final String folderName;
-    private String inject;
 
     @JsonCreator
     public UrlRemoteMod(
@@ -36,13 +34,11 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options,
             @JsonProperty(value = "folder") String folderName,
-            @JsonProperty(value = "inject") String inject
+            @JsonProperty(value = "inject") Boolean inject
     ) {
-        super(metadata, options);
+    	super(metadata, options, folderName, inject);
         this.fileName = fileName;
-        this.folderName = folderName;
         this.url = url;
-        this.inject = inject;
         this.follows = follows == null ? new String[0] : follows;
     }
 
@@ -57,7 +53,7 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public String performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
+    public void performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
         byte[] data = null;
 
         progressCallback.setSteps(follows.length + 1);
@@ -125,7 +121,6 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
         }
 
         progressCallback.done();
-        return this.folderName;
     }
 
     @Override
@@ -138,14 +133,4 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             return new RemoteModInformation(name, name);
         }
     }
-
-	@Override
-	public String folderName() {
-		return this.folderName;
-	}
-	
-	@Override
-	public int forceInject() {
-		return inject == null ? 0 : inject.equalsIgnoreCase("true") ? 1 : 2;
-	}
 }
