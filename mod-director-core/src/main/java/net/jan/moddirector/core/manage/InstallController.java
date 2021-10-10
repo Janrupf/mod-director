@@ -46,9 +46,9 @@ public class InstallController {
 
         callback.title(information.getDisplayName());
 
-        Path targetFile = mod.folderName() == null ? director.getPlatform().modFile(information.getTargetFilename()) 
-            : mod.folderName().equalsIgnoreCase(".") ? director.getPlatform().rootFile(information.getTargetFilename()) 
-                : director.getPlatform().customFile(information.getTargetFilename(), mod.folderName());
+        Path targetFile = mod.getFolder() == null ? director.getPlatform().modFile(information.getTargetFilename()) 
+            : mod.getFolder().equalsIgnoreCase(".") ? director.getPlatform().rootFile(information.getTargetFilename()) 
+                : director.getPlatform().customFile(information.getTargetFilename(), mod.getFolder());
 
         if(mod.getMetadata() != null && Files.isRegularFile(targetFile)) {
             HashResult hashResult = mod.getMetadata().checkHashes(targetFile, director);

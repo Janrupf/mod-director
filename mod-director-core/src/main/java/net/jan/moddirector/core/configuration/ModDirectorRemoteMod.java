@@ -47,7 +47,7 @@ public abstract class ModDirectorRemoteMod {
 	    return inject;
     }
 	
-    public String folderName() {
+    public String getFolder() {
         return folder;
     }
 }
