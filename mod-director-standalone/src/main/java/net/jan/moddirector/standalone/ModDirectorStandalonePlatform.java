@@ -4,6 +4,9 @@ import net.jan.moddirector.core.platform.ModDirectorPlatform;
 import net.jan.moddirector.core.logging.ModDirectorLogger;
 import net.jan.moddirector.core.platform.PlatformSide;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,12 +24,22 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
 
     @Override
     public Path configurationDirectory() {
-        return Paths.get(".");
+        return getPathAndCreate(".", "config", "mod-director");
     }
 
     @Override
     public Path modFile(String modFileName) {
-        return Paths.get(".", modFileName);
+        return getPathAndCreate(".", "mods").resolve(modFileName);
+    }
+
+    @Override
+    public Path rootFile(String modFileName) {
+        return getPathAndCreate(".").resolve(modFileName);
+    }
+
+    @Override
+    public Path customFile(String modFileName, String modFolderName) {
+        return getPathAndCreate(".", modFolderName).resolve(modFileName);
     }
 
     @Override
@@ -48,13 +61,17 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
         return false;
     }
 
-    @Override
-    public Path customFile(String modFileName, String modFolderName) {
-        return Paths.get(".", modFolderName).resolve(modFileName);
-    }
+    private Path getPathAndCreate(String first, String... more) {
+        Path p = Paths.get(first, more);
 
-    @Override
-    public Path rootFile(String modFileName) {
-        return Paths.get(".", modFileName);
+        if(!Files.isDirectory(p)) {
+            try {
+                Files.createDirectories(p);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        return p;
     }
 }
