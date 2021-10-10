@@ -47,4 +47,14 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
     public boolean headless() {
         return false;
     }
+
+    @Override
+    public Path customFile(String modFileName, String modFolderName) {
+        return Paths.get(".", modFolderName).resolve(modFileName);
+    }
+
+    @Override
+    public Path rootFile(String modFileName) {
+        return Paths.get(".", modFileName);
+    }
 }

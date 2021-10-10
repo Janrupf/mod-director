@@ -40,6 +40,16 @@ public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
     public Path modFile(String modFileName) {
         return tweaker.getGameDir().toPath().resolve("mods").resolve(modFileName);
     }
+    
+    @Override
+    public Path customFile(String modFileName, String modFolderName) {
+        return tweaker.getGameDir().toPath().resolve(modFolderName).resolve(modFileName);
+    }
+    
+    @Override
+    public Path rootFile(String modFileName) {
+        return tweaker.getGameDir().toPath().resolve(modFileName);
+    }
 
     @Override
     public ModDirectorLogger logger() {

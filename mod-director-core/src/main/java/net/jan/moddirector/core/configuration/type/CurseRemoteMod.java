@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+
+import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.configuration.*;
 import net.jan.moddirector.core.exception.ModDirectorException;
 import net.jan.moddirector.core.manage.ProgressCallback;
@@ -32,9 +34,11 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "addonId", required = true) int addonId,
             @JsonProperty(value = "fileId", required = true) int fileId,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
-            @JsonProperty(value = "options") Map<String, Object> options
+            @JsonProperty(value = "options") Map<String, Object> options,
+            @JsonProperty(value = "folder") String folder,
+            @JsonProperty(value = "inject") Boolean inject
             ) {
-        super(metadata, options);
+        super(metadata, options, folder, inject);
         this.addonId = addonId;
         this.fileId = fileId;
     }
@@ -50,8 +54,9 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
-        try(WebGetResponse response = WebClient.get(information.downloadUrl)) {
+    public void performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
+
+        try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
             progressCallback.setSteps(1);
             IOOperation.copy(response.getInputStream(), Files.newOutputStream(targetFile), progressCallback,
                     response.getStreamSize());

@@ -32,9 +32,11 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "url", required = true) URL url,
             @JsonProperty(value = "follows") String[] follows,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
-            @JsonProperty(value = "options") Map<String, Object> options
+            @JsonProperty(value = "options") Map<String, Object> options,
+            @JsonProperty(value = "folder") String folder,
+            @JsonProperty(value = "inject") Boolean inject
     ) {
-        super(metadata, options);
+        super(metadata, options, folder, inject);
         this.fileName = fileName;
         this.url = url;
         this.follows = follows == null ? new String[0] : follows;
@@ -51,7 +53,7 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
     }
 
     @Override
-    public void performInstall(Path targetFile, ProgressCallback progressCallback) throws ModDirectorException {
+    public void performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
         byte[] data = null;
 
         progressCallback.setSteps(follows.length + 1);
