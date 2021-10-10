@@ -14,15 +14,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public abstract class ModDirectorRemoteMod {
     private final RemoteModMetadata metadata;
     private final Map<String, Object> options;
-    private final String folderName;
-    private Boolean inject;
+    private final String folder;
+    private final boolean inject;
 
-    public ModDirectorRemoteMod(RemoteModMetadata metadata, Map<String, Object> options, String folderName, Boolean inject) {
+    public ModDirectorRemoteMod(RemoteModMetadata metadata, Map<String, Object> options, String folder, Boolean inject) {
         this.metadata = metadata;
         this.options = options == null ? Collections.emptyMap() : options;
-        this.folderName = folderName;
+        this.folder = folder;
         if(inject == null) {
-            this.inject = folderName == null;
+            this.inject = folder == null;
         } else {
             this.inject = inject;
         }
@@ -48,6 +48,6 @@ public abstract class ModDirectorRemoteMod {
     }
 	
     public String folderName() {
-        return folderName;
+        return folder;
     }
 }

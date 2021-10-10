@@ -33,10 +33,10 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "follows") String[] follows,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options,
-            @JsonProperty(value = "folder") String folderName,
+            @JsonProperty(value = "folder") String folder,
             @JsonProperty(value = "inject") Boolean inject
     ) {
-    	super(metadata, options, folderName, inject);
+        super(metadata, options, folder, inject);
         this.fileName = fileName;
         this.url = url;
         this.follows = follows == null ? new String[0] : follows;

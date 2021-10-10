@@ -18,7 +18,7 @@ public class InstalledMod {
         return file;
     }
 
-    public boolean getInject() {
+    public boolean shouldInject() {
         return inject;
     }
     

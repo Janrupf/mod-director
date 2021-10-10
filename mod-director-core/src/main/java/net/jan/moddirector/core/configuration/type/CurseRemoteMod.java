@@ -35,10 +35,10 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "fileId", required = true) int fileId,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
             @JsonProperty(value = "options") Map<String, Object> options,
-            @JsonProperty(value = "folder") String folderName,
+            @JsonProperty(value = "folder") String folder,
             @JsonProperty(value = "inject") Boolean inject
             ) {
-        super(metadata, options, folderName, inject);
+        super(metadata, options, folder, inject);
         this.addonId = addonId;
         this.fileId = fileId;
     }
@@ -53,7 +53,7 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
         return addonId + ":" + fileId;
     }
 
-	@Override
+    @Override
     public void performInstall(Path targetFile, ProgressCallback progressCallback, ModDirector director, RemoteModInformation information) throws ModDirectorException {
 
         try(WebGetResponse response = WebClient.get(this.information.downloadUrl)) {
