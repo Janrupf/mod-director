@@ -52,6 +52,11 @@ public class LaunchwrapperModDirectorPlatform implements ModDirectorPlatform {
     }
 
     @Override
+    public Path installationRoot() {
+        return tweaker.getGameDir().toPath();
+    }
+
+    @Override
     public ModDirectorLogger logger() {
         return new LaunchwrapperModDirectorLogger();
     }

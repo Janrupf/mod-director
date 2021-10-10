@@ -24,22 +24,27 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
 
     @Override
     public Path configurationDirectory() {
-        return getPathAndCreate(".", "config", "mod-director");
+        return Paths.get(".", "config", "mod-director");
     }
 
     @Override
     public Path modFile(String modFileName) {
-        return getPathAndCreate(".", "mods").resolve(modFileName);
+        return Paths.get(".", "mods").resolve(modFileName);
     }
 
     @Override
     public Path rootFile(String modFileName) {
-        return getPathAndCreate(".").resolve(modFileName);
+        return Paths.get(".").resolve(modFileName);
     }
 
     @Override
     public Path customFile(String modFileName, String modFolderName) {
-        return getPathAndCreate(".", modFolderName).resolve(modFileName);
+        return Paths.get(".", modFolderName).resolve(modFileName);
+    }
+
+    @Override
+    public Path installationRoot() {
+        return Paths.get(".");
     }
 
     @Override
@@ -59,19 +64,5 @@ public class ModDirectorStandalonePlatform implements ModDirectorPlatform {
     @Override
     public boolean headless() {
         return false;
-    }
-
-    private Path getPathAndCreate(String first, String... more) {
-        Path p = Paths.get(first, more);
-
-        if(!Files.isDirectory(p)) {
-            try {
-                Files.createDirectories(p);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-
-        return p;
     }
 }

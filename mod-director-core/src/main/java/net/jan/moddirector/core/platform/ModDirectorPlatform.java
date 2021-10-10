@@ -10,6 +10,7 @@ public interface ModDirectorPlatform {
     Path modFile(String modFileName);
     Path rootFile(String modFileName);
     Path customFile(String modFileName, String modFolderName);
+    Path installationRoot();
     ModDirectorLogger logger();
     PlatformSide side();
 

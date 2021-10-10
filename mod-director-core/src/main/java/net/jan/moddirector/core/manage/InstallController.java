@@ -41,14 +41,45 @@ public class InstallController {
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
                     "Failed to query information for mod " + mod.offlineName() + " from " + mod.remoteType(),
                     e));
+            callback.done();
             return;
         }
 
         callback.title(information.getDisplayName());
 
-        Path targetFile = mod.getFolder() == null ? director.getPlatform().modFile(information.getTargetFilename()) 
-            : mod.getFolder().equalsIgnoreCase(".") ? director.getPlatform().rootFile(information.getTargetFilename()) 
-                : director.getPlatform().customFile(information.getTargetFilename(), mod.getFolder());
+        Path installationRoot = director.getPlatform().installationRoot().toAbsolutePath().normalize();
+
+        Path targetFile = (mod.getFolder() == null ?
+                director.getPlatform().modFile(information.getTargetFilename())
+                : mod.getFolder().equalsIgnoreCase(".") ?
+                director.getPlatform().rootFile(information.getTargetFilename())
+                : director.getPlatform().customFile(information.getTargetFilename(), mod.getFolder()))
+                .toAbsolutePath().normalize();
+
+        if(!targetFile.startsWith(installationRoot)) {
+            director.getLogger().log(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
+                    "CORE", "Tried to install a file to %s, which is outside the installation root of %s!",
+                    targetFile.toString(), director.getPlatform().installationRoot());
+            director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
+                    "Tried to install a file to " + targetFile + ", which is outside of " +
+                            "the installation root " + installationRoot));
+            callback.done();
+            return;
+        }
+
+        Path targetDirectory = targetFile.getParent();
+        if(targetDirectory != null && !Files.isDirectory(targetDirectory)) {
+            try {
+                Files.createDirectories(targetDirectory);
+            } catch (IOException e) {
+                director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
+                        "CORE", e, "Failed to create the required directories for installation");
+                director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
+                        "Failed to create the required directories for installation", e));
+                callback.done();
+                return;
+            }
+        }
 
         if(mod.getMetadata() != null && Files.isRegularFile(targetFile)) {
             HashResult hashResult = mod.getMetadata().checkHashes(targetFile, director);
@@ -97,7 +128,7 @@ public class InstallController {
             director.getLogger().logThrowable(ModDirectorSeverityLevel.ERROR, "ModDirector/InstallController",
                     "CORE", e, "Failed to install mod %s", mod.offlineName());
             director.addError(new ModDirectorError(ModDirectorSeverityLevel.ERROR,
-                    "Failed to install mod " + mod.offlineName()));
+                    "Failed to install mod " + mod.offlineName(), e));
             callback.done();
             return;
         }
