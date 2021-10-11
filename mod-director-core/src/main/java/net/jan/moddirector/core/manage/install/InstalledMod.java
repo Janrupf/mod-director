@@ -1,4 +1,4 @@
-package net.jan.moddirector.core.manage;
+package net.jan.moddirector.core.manage.install;
 
 import java.nio.file.Path;
 import java.util.Map;

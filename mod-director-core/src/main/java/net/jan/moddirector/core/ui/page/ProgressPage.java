@@ -1,42 +1,30 @@
-package net.jan.moddirector.core.ui;
+package net.jan.moddirector.core.ui.page;
 
 import net.jan.moddirector.core.configuration.modpack.ModpackConfiguration;
 import net.jan.moddirector.core.configuration.modpack.ModpackIconConfiguration;
 import net.jan.moddirector.core.manage.ProgressCallback;
+import net.jan.moddirector.core.ui.ImageLoader;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
-public class InstallProgressDialog extends JDialog {
-    private static final int HEIGHT = 400;
-    private static final int WIDTH = (int) (HEIGHT * /* golden ratio */ 1.618);
+public class ProgressPage extends JPanel {
+    public ProgressPage(ModpackConfiguration configuration, String title) {
 
-    private final JPanel contentPanel;
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-    public InstallProgressDialog(ModpackConfiguration configuration) {
-        contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-
-        setTitle(configuration.packName());
-
-        JLabel titleLabel = new JLabel("Installing " + configuration.packName(), SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
         titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 20));
         titleLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, titleLabel.getMinimumSize().height));
-        contentPanel.add(titleLabel);
+        add(titleLabel);
 
         ModpackIconConfiguration icon = configuration.icon();
         if (icon != null) {
             JLabel iconLabel = ImageLoader.createLabelForImage(icon.path(), icon.width(), icon.height());
             iconLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, iconLabel.getMaximumSize().height));
-            contentPanel.add(iconLabel);
+            add(iconLabel);
         }
-
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setSize(WIDTH, HEIGHT);
-
-        setContentPane(contentPanel);
-        setSize(WIDTH, HEIGHT);
     }
 
     public ProgressCallback createProgressCallback(String title, String initialMessage) {
@@ -44,20 +32,21 @@ public class InstallProgressDialog extends JDialog {
     }
 
     private class VisualProgressCallback implements ProgressCallback {
-        private final JProgressBar progressBar;
+        private JProgressBar progressBar;
         private int currentStep;
         boolean done;
 
         private VisualProgressCallback(String title, String initialMessage) {
-            progressBar = new JProgressBar();
-            progressBar.setString(initialMessage);
-            progressBar.setStringPainted(true);
-            progressBar.setBorder(new TitledBorder(title));
-
             SwingUtilities.invokeLater(() -> {
-                contentPanel.add(progressBar);
-                contentPanel.revalidate();
+                progressBar = new JProgressBar();
+                progressBar.setString(initialMessage);
+                progressBar.setStringPainted(true);
+                progressBar.setBorder(new TitledBorder(title));
+
+                add(progressBar);
+                revalidate();
             });
+
             done = false;
             setSteps(1);
         }
@@ -95,8 +84,8 @@ public class InstallProgressDialog extends JDialog {
             }
 
             SwingUtilities.invokeLater(() -> {
-                contentPanel.remove(progressBar);
-                contentPanel.revalidate();
+                remove(progressBar);
+                revalidate();
             });
             done = true;
 
@@ -104,12 +93,12 @@ public class InstallProgressDialog extends JDialog {
 
         @Override
         public void title(String newTitle) {
-            progressBar.setBorder(new TitledBorder(newTitle));
+            SwingUtilities.invokeLater(() -> progressBar.setBorder(new TitledBorder(newTitle)));
         }
 
         @Override
         public void indeterminate(boolean isIndeterminate) {
-            progressBar.setIndeterminate(isIndeterminate);
+            SwingUtilities.invokeLater(() -> progressBar.setIndeterminate(isIndeterminate));
         }
     }
 }

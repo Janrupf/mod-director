@@ -34,11 +34,12 @@ public class CurseRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "addonId", required = true) int addonId,
             @JsonProperty(value = "fileId", required = true) int fileId,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
+            @JsonProperty(value = "installationPolicy") InstallationPolicy installationPolicy,
             @JsonProperty(value = "options") Map<String, Object> options,
             @JsonProperty(value = "folder") String folder,
             @JsonProperty(value = "inject") Boolean inject
             ) {
-        super(metadata, options, folder, inject);
+        super(metadata, installationPolicy, options, folder, inject);
         this.addonId = addonId;
         this.fileId = fileId;
     }

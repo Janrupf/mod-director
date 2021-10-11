@@ -2,7 +2,7 @@ package net.jan.moddirector.launchwrapper.forge;
 
 import net.jan.moddirector.core.ModDirector;
 import net.jan.moddirector.core.logging.ModDirectorSeverityLevel;
-import net.jan.moddirector.core.manage.InstalledMod;
+import net.jan.moddirector.core.manage.install.InstalledMod;
 import net.jan.moddirector.core.manage.ModDirectorError;
 import net.jan.moddirector.launchwrapper.ModDirectorTweaker;
 import net.minecraft.launchwrapper.ITweaker;

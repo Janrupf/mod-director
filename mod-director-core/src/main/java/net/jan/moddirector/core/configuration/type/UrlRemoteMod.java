@@ -3,6 +3,7 @@ package net.jan.moddirector.core.configuration.type;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.jan.moddirector.core.ModDirector;
+import net.jan.moddirector.core.configuration.InstallationPolicy;
 import net.jan.moddirector.core.configuration.ModDirectorRemoteMod;
 import net.jan.moddirector.core.configuration.RemoteModInformation;
 import net.jan.moddirector.core.configuration.RemoteModMetadata;
@@ -32,11 +33,12 @@ public class UrlRemoteMod extends ModDirectorRemoteMod {
             @JsonProperty(value = "url", required = true) URL url,
             @JsonProperty(value = "follows") String[] follows,
             @JsonProperty(value = "metadata") RemoteModMetadata metadata,
+            @JsonProperty(value = "installationPolicy") InstallationPolicy installationPolicy,
             @JsonProperty(value = "options") Map<String, Object> options,
             @JsonProperty(value = "folder") String folder,
             @JsonProperty(value = "inject") Boolean inject
     ) {
-        super(metadata, options, folder, inject);
+        super(metadata, installationPolicy, options, folder, inject);
         this.fileName = fileName;
         this.url = url;
         this.follows = follows == null ? new String[0] : follows;
