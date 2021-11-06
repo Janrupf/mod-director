@@ -131,8 +131,6 @@ public class InstallController {
                     freshMods.add(installableMod);
                 }
 
-                Thread.sleep(4000);
-
                 callback.done();
                 return null;
             });
